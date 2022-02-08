@@ -70,7 +70,49 @@ sumVect : Num numType => Vect x numType -> Vect x numType -> Vect x numType
 sumVect [] [] = []
 sumVect (x :: xs) (y :: ys) = x + y :: sumVect xs ys
 
-mulMatrix : Num numType => Matrix m n numType -> Matrix p n numType -> Matrix m p numType
-mulMatrix [] ys = []
-mulMatrix (x :: xs) [] = ?mulMatrix_rhs_2
-mulMatrix (x :: xs) (y :: ys) = ?mulMatrix_rhs_3
+createEmpties : {n : _} -> Vect n (Vect 0 type)
+createEmpties {n = 0} = []
+createEmpties {n = (S k)}= [] :: createEmpties
+
+transposeHelper :
+  Vect n type
+  -> Vect n (Vect k type)
+  -> Vect n (Vect (S k) type)
+transposeHelper x xsTrans = zipWith (::) x xsTrans
+
+transposeMatrix : {n : _} -> Num numType => Matrix m n numType -> Matrix n m numType
+transposeMatrix [] = createEmpties
+transposeMatrix (x :: xs) = let xsTrans = transposeMatrix xs in
+                                          transposeHelper x xsTrans
+
+
+sumMatrix : Num numType => Matrix m n numType -> Matrix m n numType -> Matrix m n numType
+sumMatrix xs ys = zipWith sumVect xs ys
+
+makeRow : Num numType => Vect m numType -> Matrix p m numType -> Vect p numType
+makeRow xs ys = map (\row => sum (zipWith (*) xs row)) ys
+
+holezinho : Num numType =>
+  Matrix n m numType
+  -> Matrix p m numType
+  -> Matrix n p numType
+holezinho [] _ = []
+holezinho (x :: xs) ys = makeRow x ys :: holezinho xs ys
+
+mulMatrix : Num numType => {n, p : _}
+  -> Matrix n m numType
+  -> Matrix m p numType
+  -> Matrix n p numType
+mulMatrix xs ys = let ysTrans = transposeMatrix ys in
+                            holezinho xs ysTrans
+
+matrixOne : Matrix 3 2 Int
+matrixOne = [ [1, 2]
+            , [3, 4]
+            , [5, 6]
+            ]
+
+matrixTwo : Matrix 2 4 Int
+matrixTwo = [ [7, 8, 9, 10]
+            , [11, 12, 13, 14]
+            ]
