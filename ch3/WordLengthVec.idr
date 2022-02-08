@@ -44,3 +44,33 @@ map f (x :: xs) = f x :: map f xs
 mapVec : (a -> b) -> Vect size a -> Vect size b
 mapVec f [] = []
 mapVec f (x :: xs) = f x :: mapVec f xs
+
+fromVect : Vect size a -> List a
+fromVect [] = []
+fromVect (x :: xs) = x :: fromVect xs
+
+makeRange : { size : Nat } -> Vect size Nat
+makeRange { size = Z } = []
+makeRange { size = (S k) } = S k :: makeRange { size = k }
+
+input : Vect 100 Nat
+input = makeRange
+
+myFromList : (l : List type) -> Vect (length l) type
+myFromList [] = []
+myFromList (x :: xs) = x :: myFromList xs
+
+main : IO ()
+main = putStrLn . show . fromVect . myReverseVec $ input
+
+Matrix : Nat -> Nat -> Type -> Type
+Matrix x y type = Vect x (Vect y type)
+
+sumVect : Num numType => Vect x numType -> Vect x numType -> Vect x numType
+sumVect [] [] = []
+sumVect (x :: xs) (y :: ys) = x + y :: sumVect xs ys
+
+mulMatrix : Num numType => Matrix m n numType -> Matrix p n numType -> Matrix m p numType
+mulMatrix [] ys = []
+mulMatrix (x :: xs) [] = ?mulMatrix_rhs_2
+mulMatrix (x :: xs) (y :: ys) = ?mulMatrix_rhs_3
